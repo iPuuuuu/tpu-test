@@ -24,11 +24,12 @@ mesh = Mesh(devices=device_mesh, axis_names=('data', 'model'))
 
 x_sharding = NamedSharding(mesh, PartitionSpec('data'))
 
-@functools.partial(jax.jit, in_shardings=(x_sharding),out_shardings=x_sharding)
+@functools.partial(jax.jit, in_shardings=(None),out_shardings=None)
 def test(rng):
-    jax.debug.print("{x}",x=jax.random.key_data(rng))
+    new_rng,rng = jax.random.split(rng,2)
+    jax.debug.print("{x}",x=jax.random.key_data(new_rng))
     return rng
 
 key = jax.random.PRNGKey(0)
-key = jax.random.split(key,8)
+
 test(key)
