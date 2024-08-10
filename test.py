@@ -22,13 +22,13 @@ device_mesh = mesh_utils.create_device_mesh((2, 4))
 mesh = Mesh(devices=device_mesh, axis_names=('data', 'model'))
 #print(mesh)
 
-def mesh_sharding(pspec: PartitionSpec) -> NamedSharding:
-  return NamedSharding(mesh, pspec)
+x_sharding = NamedSharding(mesh, PartitionSpec('data'))
 
-@functools.partial(jax.jit, in_shardings=(None),out_shardings=None)
+@functools.partial(jax.jit, in_shardings=(x_sharding),out_shardings=x_sharding)
 def test(rng):
     jax.debug.print(jax.random.key_data(rng))
     return rng
-key = jax.random.PRNGKey(0)
 
+key = jax.random.PRNGKey(0)
+key = jax.random.split(key,8)
 test(key)
