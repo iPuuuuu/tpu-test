@@ -26,7 +26,9 @@ x_sharding = NamedSharding(mesh, PartitionSpec('data'))
 
 @functools.partial(jax.jit, in_shardings=(None),out_shardings=None)
 def test(rng):
-    new_rng = jax.random.fold_in(rng,jax.process_index())
+    new_rng = jax.random.split(rng,4)
+    jax.debug.visualize_array_sharding(new_rng)
+    new_rng = with_sharding_constraint(new_rng, NamedSharding(mesh,PartitionSpec('data')))
     jax.debug.visualize_array_sharding(new_rng)
     #jax.debug.print("{x}",x=jax.random.key_data(new_rng))
     #jax.debug.print("{y}",y=jax.random.normal(new_rng,(6)))
