@@ -26,10 +26,9 @@ x_sharding = NamedSharding(mesh, PartitionSpec('data'))
 
 @functools.partial(jax.jit, in_shardings=(None),out_shardings=None)
 def test(rng):
-    new_rng,rng = jax.random.split(rng,2)
+    new_rng = jax.random.fold_in(rng,jax.process_index())
     jax.debug.print("{x}",x=jax.random.key_data(new_rng))
-    return rng
+    return new_rng
 
 key = jax.random.PRNGKey(0)
-
 test(key)
